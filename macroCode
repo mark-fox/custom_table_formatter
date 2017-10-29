@@ -1,0 +1,54 @@
+Sub customTableFormatter()
+‘
+‘
+‘
+Application.ScreenUpdating = False
+Dim RngSel As Range, Tbl As Table, sWdth(), i As Long, Rng As Range
+sWdth = Array(7.95, 0.6, 3.31, 3.19, 0.85, 7.35)
+Set RngSel = Selection.Range
+With RngSel
+  For Each Tbl In .Tables
+    With Tbl
+      .TopPadding = InchesToPoints(0.05)
+      .BottomPadding = InchesToPoints(0.05)
+      .LeftPadding = InchesToPoints(0.05)
+      .RightPadding = InchesToPoints(0.05)
+      .Spacing = 0
+      .AllowAutoFit = False
+      .PreferredWidthType = wdPreferredWidthPoints
+      .PreferredWidth = InchesToPoints(sWdth(0))
+      With .Rows
+        .LeftIndent = 0
+        .Alignment = wdAlignRowCenter
+        .WrapAroundText = False   
+        .RelativeHorizontalPosition = wdRelativeHorizontalPositionMargin
+        .HeightRule = wdRowHeightAuto
+      End With
+      With .Range
+        .Cells(1).Select: Selection.Rows.HeadingFormat = True
+        For i = 1 To 4
+          .Cells(i).Width = InchesToPoints(sWdth(i))
+        Next
+        For i = 5 To .Cells.Count
+          If ((i Mod 5) + 1) = 1 Then
+            If .Cells(i + 4).ColumnIndex = 1 Then
+              Set Rng = .Cells(i).Range
+              Rng.End = .Cells(i + 4).Range.End
+              Rng.Select: Selection.Cells.Merge
+            End If
+            .Cells(i).VerticalAlignment = wdCellAlignVerticalTop 
+          End If
+          If ((i Mod 5) + 1) = 5 Then
+            .Cells(i).SetHeight Rowheight:=InchesToPoints(0.8), HeightRule:=wdRowHeightAtLeast
+          End If
+          .Cells(i).Width = InchesToPoints(sWdth((i Mod 5) + 1))
+          If i = .Cells.Count Then Exit For
+        Next
+      End With
+      Tbl.Rows.WrapAroundText = False    
+      Tbl.Rows.Alignment = wdAlignRowCenter  
+    End With
+  Next
+End With
+Application.ScreenUpdating = True
+End Sub
